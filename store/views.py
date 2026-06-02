@@ -257,3 +257,43 @@ def contact(request):
                        'email': request.user.email}
         form = ContactForm(initial=initial)
     return render(request, 'store/contact.html', {'form': form})
+
+
+@login_required
+def profile(request):
+    prof, _ = UserProfile.objects.get_or_create(user=request.user)
+    password_form = ChangePasswordForm(request.user)
+
+    if request.method == 'POST' and 'change_password' in request.POST:
+        form = ProfileForm(instance=prof)
+        password_form = ChangePasswordForm(request.user, request.POST)
+        if password_form.is_valid():
+            update_session_auth_hash(request, password_form.save())
+            messages.success(request, 'Password updated.')
+            return redirect('profile')
+    elif request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=prof)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated.')
+            return redirect('profile')
+    else:
+        form = ProfileForm(instance=prof)
+    return render(request, 'store/profile.html', {'form': form, 'profile': prof, 'password_form': password_form})
+
+# ---------------------------------------------------------------
+# AUTH + PROFILE
+# ---------------------------------------------------------------
+def register(request):
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            UserProfile.objects.create(user=user)   # auto-create a profile
+            login(request, user)                     # log them straight in
+            messages.success(request, 'Welcome to ThreadLine!')
+            return redirect('index')
+    else:
+        form = RegisterForm()
+    return render(request, 'registration/register.html', {'form': form})
+
