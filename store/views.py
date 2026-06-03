@@ -52,6 +52,26 @@ class ProductListView(ListView):
         }
         return ctx
 
+def product_detail(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+
+    recently = request.session.get('recently_viewed', [])
+    if pk in recently:
+        recently.remove(pk)
+    recently.insert(0, pk)                       # newest first
+    recently = recently[:5]                       # keep last 5
+    request.session['recently_viewed'] = recently
+    request.session.modified = True
+
+    recent_products = Product.objects.filter(pk__in=recently[1:5]).exclude(pk=pk)
+    review_form = ReviewForm()
+    return render(request, 'store/product_detail.html', {
+        'product': product,
+        'recent_products': recent_products,
+        'reviews': product.reviews.all(),
+        'review_form': review_form,
+    })
+
 
 @login_required
 def add_review(request, pk):
