@@ -1,0 +1,77 @@
+/* Hero background — layered look: soft gradient + fine grid + a big soft
+   blob for depth, all CSS (no image assets needed). Kept monochrome to
+   match the site's black/white/grey editorial palette. */
+
+.hero{
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(0,0,0,.06), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 100% 110%, rgba(0,0,0,.05), transparent 60%),
+    linear-gradient(180deg, #fbfbfb 0%, var(--bg2) 100%);
+}
+
+/* faint dot grid, sits above the gradient, below the text */
+.hero::before{
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(0,0,0,.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: linear-gradient(180deg, rgba(0,0,0,.6), transparent 75%);
+  -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.6), transparent 75%);
+  pointer-events: none;
+}
+
+/* large soft blurred shape, purely decorative */
+.hero::after{
+  content: '';
+  position: absolute;
+  top: -220px;
+  right: -160px;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,0,0,.07), transparent 70%);
+  filter: blur(10px);
+  pointer-events: none;
+}
+
+.hero-inner{
+  position: relative;
+  z-index: 1;
+}
+
+
+/* ---------------------------------------------------------------------
+   Alternates — swap the .hero background rule above for one of these if
+   you want a different mood. Leave only one active at a time.
+   --------------------------------------------------------------------- */
+
+/* A) Bold split: black band behind the headline, rest stays white.
+.hero{
+  background: linear-gradient(180deg, #111 0%, #111 62%, var(--bg2) 62%);
+}
+.hero h1, .hero p{ color:#fff }
+.hero p{ color:#b0b0b0 }
+*/
+
+/* B) Diagonal stripes, very subtle, editorial-poster feel.
+.hero{
+  background:
+    repeating-linear-gradient(115deg, rgba(0,0,0,.035) 0 2px, transparent 2px 26px),
+    var(--bg2);
+}
+*/
+
+/* C) Full-bleed photo with a dark gradient so white text/buttons pop.
+   Drop your image at static/img/herobc.jpg to use this.
+.hero{
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.6)),
+    url('../img/herobc.jpg') center/cover no-repeat;
+}
+.hero h1, .hero p{ color:#fff }
+.hero p{ color:#e6e6e6 }
+.hero .btn-ghost{ border-color:#fff; color:#fff }
+*/

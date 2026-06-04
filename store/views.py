@@ -235,3 +235,6 @@ def product_delete(request, pk):
 def order_history(request):
     orders = request.user.orders.prefetch_related('items__product')
     return render(request, 'store/order_history.html', {'orders': orders})
+
+def about(request):
+    return render(request, 'store/about.html')

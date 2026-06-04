@@ -20,4 +20,7 @@ urlpatterns = [
     path('product/<int:pk>/edit/', views.product_edit, name='product_edit'),
     path('product/<int:pk>/delete/', views.product_delete, name='product_delete'),
 
+    # static pages
+    path('about/', views.about, name='about'),
+
 ]
