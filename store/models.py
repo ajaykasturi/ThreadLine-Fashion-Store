@@ -41,3 +41,36 @@ class Product(models.Model):
 
     def size_list(self):
         return [s.strip() for s in self.sizes.split(',') if s.strip()]
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='products/gallery/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['uploaded_at']
+
+    def __str__(self):
+        return f'photo for {self.product.name}'
+
+
+class UserProfile(models.Model):
+    # address split into fields (not one text blob) so we can validate postal
+    # code and pre-fill checkout from it
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    phone = models.CharField(max_length=20, blank=True)
+    street_address = models.CharField(max_length=255, blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    province = models.CharField(max_length=100, blank=True, choices=PROVINCE_CHOICES)
+    postal_code = models.CharField(max_length=10, blank=True)
+    country = models.CharField(max_length=100, blank=True, default='Canada')
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+
+    def full_address(self):
+        parts = [self.street_address, self.city, self.province,
+                 self.postal_code, self.country]
+        return ', '.join(p for p in parts if p)
+
+    def __str__(self):
+        return f"{self.user.username}'s profile"
+
