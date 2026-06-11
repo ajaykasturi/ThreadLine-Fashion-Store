@@ -76,3 +76,38 @@ class ChangePasswordForm(PasswordChangeForm):
         super().__init__(*args, **kwargs)
         _bootstrap(self.fields)
 
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['phone', 'street_address', 'city', 'province',
+                  'postal_code', 'country', 'avatar']
+        labels = {
+            'street_address': 'Street address',
+            'postal_code': 'Postal code',
+        }
+        widgets = {
+            'street_address': forms.TextInput(attrs={'placeholder': '123 Ouellette Ave'}),
+            'city': forms.TextInput(attrs={'placeholder': 'Windsor'}),
+            'postal_code': forms.TextInput(attrs={'placeholder': 'N9A 1A1'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        _bootstrap(self.fields)
+
+    def clean_postal_code(self):
+        return _clean_postal(self.cleaned_data.get('postal_code', ''), required=False)
+
+
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['name', 'category', 'brand', 'description', 'price', 'stock', 'image', 'sizes']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+            'sizes': forms.TextInput(attrs={'placeholder': 'S,M,L,XL or Regular'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        _bootstrap(self.fields)
