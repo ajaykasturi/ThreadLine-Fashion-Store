@@ -174,3 +174,15 @@ def checkout(request):
             })
         form = CheckoutForm(initial=initial)
     return render(request, 'store/checkout.html', {'form': form, 'items': items, 'total': total})
+
+@login_required
+def product_delete(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    if not request.user.is_staff:
+        messages.error(request, 'Only staff can delete products.')
+        return redirect('product_detail', pk=pk)
+    if request.method == 'POST':
+        product.delete()
+        messages.success(request, 'Product deleted.')
+        return redirect('index')
+    return render(request, 'store/product_confirm_delete.html', {'product': product})
