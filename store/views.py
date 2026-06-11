@@ -52,6 +52,49 @@ class ProductListView(ListView):
         }
         return ctx
 
+
+# ---------------------------------------------------------------
+# PRODUCT CRUD  (registered users manage their own products)
+# ---------------------------------------------------------------
+@login_required
+def product_upload(request):
+    if not request.user.is_staff:
+        messages.error(request, 'Only staff can add products.')
+        return redirect('index')
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            product = form.save(commit=False)
+            product.uploaded_by = request.user
+            product.save()
+            for f in request.FILES.getlist('extra_images'):
+                ProductImage.objects.create(product=product, image=f)
+            messages.success(request, 'Product uploaded!')
+            return redirect('product_detail', pk=product.pk)
+    else:
+        form = ProductForm()
+    return render(request, 'store/product_form.html', {'form': form, 'title': 'Upload Product'})
+
+
+@login_required
+def product_edit(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    if not request.user.is_staff:
+        messages.error(request, 'Only staff can edit products.')
+        return redirect('product_detail', pk=pk)
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            form.save()
+            for f in request.FILES.getlist('extra_images'):
+                ProductImage.objects.create(product=product, image=f)
+            messages.success(request, 'Product updated.')
+            return redirect('product_detail', pk=pk)
+    else:
+        form = ProductForm(instance=product)
+    return render(request, 'store/product_form.html', {'form': form, 'title': 'Edit Product', 'product': product})
+
+
 def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk)
 

@@ -16,6 +16,8 @@ urlpatterns = [
 
 
     # product CRUD
+    path('product/new/', views.product_upload, name='product_upload'),
+    path('product/<int:pk>/edit/', views.product_edit, name='product_edit'),
     path('product/<int:pk>/delete/', views.product_delete, name='product_delete'),
 
 ]
