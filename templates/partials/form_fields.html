@@ -1,0 +1,18 @@
+{% comment %}
+Shared field renderer. Every form page includes this so labels, errors,
+and help text look identical everywhere.
+Usage:  {% include 'partials/form_fields.html' %}
+{% endcomment %}
+{% if form.non_field_errors %}
+  <div class="alert mb-3" style="border-color:var(--danger);color:var(--danger)">
+    {% for e in form.non_field_errors %}{{ e }}{% endfor %}
+  </div>
+{% endif %}
+{% for field in form %}
+  <div class="mb-3">
+    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+    {{ field }}
+    {% for e in field.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+    {% if field.help_text %}<small class="field-help">{{ field.help_text|safe }}</small>{% endif %}
+  </div>
+{% endfor %}

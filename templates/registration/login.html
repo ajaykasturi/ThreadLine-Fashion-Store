@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Login | ThreadLine{% endblock %}
+{% block content %}
+<div class="container my-5"><div class="row justify-content-center"><div class="col-lg-5 col-md-7">
+  <div class="panel">
+    <h2 class="text-center mb-1">Welcome Back</h2>
+    <p class="text-center mb-4" style="color:var(--muted)">Log in to continue shopping.</p>
+    <form method="post">{% csrf_token %}
+      {% include 'partials/form_fields.html' %}
+      <button class="btn btn-accent btn-lg w-100">Login</button>
+    </form>
+    <div class="text-center mt-3"><a href="{% url 'password_reset' %}">Forgot password?</a></div>
+    <hr class="my-4">
+    <p class="text-center mb-0" style="color:var(--muted)">
+      No account? <a href="{% url 'register' %}"><strong>Sign up</strong></a></p>
+  </div>
+</div></div></div>
+{% endblock %}
