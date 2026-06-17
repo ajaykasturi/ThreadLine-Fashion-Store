@@ -74,3 +74,43 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"{self.user.username}'s profile"
 
+
+class Order(models.Model):
+    STATUS_CHOICES = [('Pending', 'Pending'), ('Shipped', 'Shipped'), ('Delivered', 'Delivered')]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
+    created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    full_name = models.CharField(max_length=200)
+    phone = models.CharField(max_length=20, blank=True)
+    street_address = models.CharField(max_length=255)
+    city = models.CharField(max_length=100)
+    province = models.CharField(max_length=100, choices=PROVINCE_CHOICES)
+    postal_code = models.CharField(max_length=10)
+    country = models.CharField(max_length=100, default='Canada')
+    total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    def shipping_address(self):
+        parts = [self.street_address, self.city, self.province,
+                 self.postal_code, self.country]
+        return ', '.join(p for p in parts if p)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'Order #{self.pk} by {self.user.username}'
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    quantity = models.PositiveIntegerField(default=1)
+    price = models.DecimalField(max_digits=8, decimal_places=2)
+    size = models.CharField(max_length=20, blank=True)
+
+    def subtotal(self):
+        return self.quantity * self.price
+
+    def __str__(self):
+        return f'{self.quantity} x {self.product}'
+
