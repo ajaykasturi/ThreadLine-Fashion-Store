@@ -229,3 +229,9 @@ def product_delete(request, pk):
         messages.success(request, 'Product deleted.')
         return redirect('index')
     return render(request, 'store/product_confirm_delete.html', {'product': product})
+
+
+@login_required
+def order_history(request):
+    orders = request.user.orders.prefetch_related('items__product')
+    return render(request, 'store/order_history.html', {'orders': orders})
