@@ -1,8 +1,16 @@
-
+from decimal import Decimal
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, update_session_auth_hash
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.views.generic import ListView
 from django.db.models import Q
-from .models import Product, Category
+
+from .models import Product, Category, Order, OrderItem, Review, UserProfile, ContactMessage, ProductImage
+from .forms import (RegisterForm, ProfileForm, ProductForm, CheckoutForm,
+                    ReviewForm, ContactForm, ChangePasswordForm)
+
+
 
 # Create your views here.
 class ProductListView(ListView):
@@ -43,3 +51,92 @@ class ProductListView(ListView):
             'sort': self.request.GET.get('sort', ''),
         }
         return ctx
+
+
+# ---------------------------------------------------------------
+# CART
+# Lives entirely in request.session so guests can use it too; checkout
+# itself is gated to registered users below.
+# ---------------------------------------------------------------
+def _get_cart(request):
+    return request.session.get('cart', {})   # { "product_id:size": quantity }
+
+
+def add_to_cart(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    sizes = product.size_list()
+    size = request.POST.get('size', '')
+    if size not in sizes:
+        size = sizes[0] if sizes else 'Regular'
+    key = f'{pk}:{size}'
+    cart = _get_cart(request)
+    cart[key] = cart.get(key, 0) + 1
+    request.session['cart'] = cart
+    request.session.modified = True
+    messages.success(request, f'Added "{product.name}" ({size}) to cart.')
+    return redirect(request.META.get('HTTP_REFERER', 'index'))
+
+
+def cart_view(request):
+    cart = _get_cart(request)
+    items, total = [], Decimal('0')
+    for key, qty in cart.items():
+        pid, _, size = key.partition(':')
+        product = Product.objects.filter(pk=pid).first()
+        if product:
+            subtotal = product.price * qty
+            total += subtotal
+            items.append({'product': product, 'size': size, 'qty': qty,
+                          'subtotal': subtotal, 'key': key})
+    return render(request, 'store/cart.html', {'items': items, 'total': total})
+
+
+def remove_from_cart(request, key):
+    cart = _get_cart(request)
+    cart.pop(key, None)
+    request.session['cart'] = cart
+    request.session.modified = True
+    return redirect('cart')
+
+
+@login_required
+def checkout(request):
+    cart = _get_cart(request)
+    if not cart:
+        messages.warning(request, 'Your cart is empty.')
+        return redirect('index')
+
+    items, total = [], Decimal('0')
+    for key, qty in cart.items():
+        pid, _, size = key.partition(':')
+        product = Product.objects.filter(pk=pid).first()
+        if product:
+            items.append((product, size, qty))
+            total += product.price * qty
+
+    if request.method == 'POST':
+        form = CheckoutForm(request.POST)
+        if form.is_valid():
+            order = form.save(commit=False)
+            order.user = request.user
+            order.total = total
+            order.save()
+            for product, size, qty in items:
+                OrderItem.objects.create(order=order, product=product,
+                                         quantity=qty, price=product.price, size=size)
+            request.session['cart'] = {}   # clear cart
+            request.session.modified = True
+            messages.success(request, f'Order #{order.pk} placed successfully!')
+            return redirect('order_history')
+    else:
+        prof = getattr(request.user, 'profile', None)
+        initial = {'full_name': request.user.get_full_name() or request.user.username}
+        if prof:
+            initial.update({
+                'phone': prof.phone, 'street_address': prof.street_address,
+                'city': prof.city, 'province': prof.province,
+                'postal_code': prof.postal_code,
+                'country': prof.country or 'Canada',
+            })
+        form = CheckoutForm(initial=initial)
+    return render(request, 'store/checkout.html', {'form': form, 'items': items, 'total': total})
