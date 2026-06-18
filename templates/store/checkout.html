@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Checkout | ThreadLine{% endblock %}
+{% block content %}
+<div class="container my-5">
+  <h1 class="section-title">Checkout</h1>
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="panel">
+        <h5 class="mb-4">Shipping Details</h5>
+        <form method="post">{% csrf_token %}
+          {% if form.non_field_errors %}
+            <div class="alert mb-3" style="border-color:var(--danger);color:var(--danger)">
+              {% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>
+          {% endif %}
+
+          <div class="row">
+            <div class="col-md-7 mb-3">
+              <label for="{{ form.full_name.id_for_label }}">{{ form.full_name.label }}</label>
+              {{ form.full_name }}
+              {% for e in form.full_name.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="col-md-5 mb-3">
+              <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label>
+              {{ form.phone }}
+              {% for e in form.phone.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ form.street_address.id_for_label }}">{{ form.street_address.label }}</label>
+            {{ form.street_address }}
+            {% for e in form.street_address.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+          </div>
+
+          <div class="row">
+            <div class="col-md-5 mb-3">
+              <label for="{{ form.city.id_for_label }}">{{ form.city.label }}</label>
+              {{ form.city }}
+              {% for e in form.city.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="{{ form.province.id_for_label }}">{{ form.province.label }}</label>
+              {{ form.province }}
+              {% for e in form.province.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="col-md-3 mb-3">
+              <label for="{{ form.postal_code.id_for_label }}">{{ form.postal_code.label }}</label>
+              {{ form.postal_code }}
+              {% for e in form.postal_code.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="{{ form.country.id_for_label }}">{{ form.country.label }}</label>
+            {{ form.country }}
+            {% for e in form.country.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+          </div>
+
+          <button class="btn btn-accent btn-lg w-100">Place Order</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="panel">
+        <h5 class="mb-3">Order Summary</h5>
+        {% for product, size, qty in items %}
+          <div class="d-flex justify-content-between mb-2">
+            <span style="color:var(--muted)">{{ product.name }} ({{ size }}) &times; {{ qty }}</span>
+            <span>${{ product.price }}</span>
+          </div>
+        {% endfor %}
+        <hr>
+        <div class="d-flex justify-content-between">
+          <strong>Total</strong><span class="price">${{ total }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

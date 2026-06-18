@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Delete | ThreadLine{% endblock %}
+{% block content %}
+<div class="container my-5"><div class="row justify-content-center"><div class="col-lg-5">
+  <div class="panel text-center">
+    <i class="bi bi-exclamation-triangle" style="font-size:2.2rem;color:var(--danger)"></i>
+    <h2 class="mt-3 mb-2">Delete this product?</h2>
+    <p class="mb-4" style="color:var(--muted)">"{{ product.name }}" will be removed permanently.</p>
+    <form method="post">{% csrf_token %}
+      <a href="{% url 'product_detail' product.pk %}" class="btn btn-ghost">Cancel</a>
+      <button class="btn btn-accent" style="background:var(--danger)">Delete</button>
+    </form>
+  </div>
+</div></div></div>
+{% endblock %}

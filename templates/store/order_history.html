@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Orders | ThreadLine{% endblock %}
+{% block content %}
+<div class="container my-5">
+  <h1 class="section-title">Order History</h1>
+  {% for order in orders %}
+    <div class="panel mb-3">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h6 class="mb-1">Order #{{ order.pk }}</h6>
+          <p class="mb-0" style="color:var(--muted);font-size:.88rem">
+            {{ order.created_at|date:"M d, Y" }} &nbsp;|&nbsp; {{ order.full_name }}</p>
+          <p class="mb-0" style="color:var(--muted);font-size:.88rem">{{ order.shipping_address }}</p>
+        </div>
+        <span class="chip">{{ order.status }}</span>
+      </div>
+      <hr>
+      {% for item in order.items.all %}
+        <div class="d-flex justify-content-between mb-1">
+          <span style="color:var(--muted)">{{ item.product.name }} ({{ item.size }}) &times; {{ item.quantity }}</span>
+          <span>${{ item.subtotal }}</span></div>
+      {% endfor %}
+      <hr>
+      <div class="d-flex justify-content-between">
+        <strong>Total</strong><span class="price">${{ order.total }}</span></div>
+    </div>
+  {% empty %}
+    <div class="panel text-center py-5">
+      <p class="mb-4" style="color:var(--muted)">No orders yet.</p>
+      <a href="{% url 'index' %}" class="btn btn-accent">Shop Now</a></div>
+  {% endfor %}
+</div>
+{% endblock %}

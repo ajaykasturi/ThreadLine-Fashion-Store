@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}Profile | ThreadLine{% endblock %}
+{% block content %}
+<div class="container my-5">
+  <h1 class="section-title">My Profile</h1>
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="panel text-center">
+        {% if profile.avatar %}
+          <img src="{{ profile.avatar.url }}" class="rounded-circle mb-3"
+               style="width:130px;height:130px;object-fit:cover">
+        {% else %}
+          <div class="rounded-circle mb-3 d-inline-flex align-items-center justify-content-center"
+               style="width:130px;height:130px;background:var(--bg2)">
+            <i class="bi bi-person" style="font-size:2.8rem;color:var(--muted)"></i></div>
+        {% endif %}
+        <h5 class="mb-1">{{ user.username }}</h5>
+        <p style="color:var(--muted);font-size:.9rem">{{ user.email }}</p>
+        {% if profile.full_address %}
+          <hr>
+          <p class="mb-0" style="color:var(--muted);font-size:.85rem">{{ profile.full_address }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="panel">
+        <h5 class="mb-4">Edit Profile</h5>
+        <form method="post" enctype="multipart/form-data">{% csrf_token %}
+          {% if form.non_field_errors %}
+            <div class="alert mb-3" style="border-color:var(--danger);color:var(--danger)">
+              {% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>
+          {% endif %}
+
+          <div class="mb-3">
+            <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label>
+            {{ form.phone }}
+            {% for e in form.phone.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ form.street_address.id_for_label }}">{{ form.street_address.label }}</label>
+            {{ form.street_address }}
+            {% for e in form.street_address.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+          </div>
+
+          <div class="row">
+            <div class="col-md-5 mb-3">
+              <label for="{{ form.city.id_for_label }}">{{ form.city.label }}</label>
+              {{ form.city }}
+              {% for e in form.city.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="col-md-4 mb-3">
+              <label for="{{ form.province.id_for_label }}">{{ form.province.label }}</label>
+              {{ form.province }}
+              {% for e in form.province.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="col-md-3 mb-3">
+              <label for="{{ form.postal_code.id_for_label }}">{{ form.postal_code.label }}</label>
+              {{ form.postal_code }}
+              {% for e in form.postal_code.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ form.country.id_for_label }}">{{ form.country.label }}</label>
+            {{ form.country }}
+            {% for e in form.country.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+          </div>
+
+          <div class="mb-4">
+            <label for="{{ form.avatar.id_for_label }}">{{ form.avatar.label }}</label>
+            {{ form.avatar }}
+            {% for e in form.avatar.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+          </div>
+
+          <button class="btn btn-accent btn-lg">Save Changes</button>
+        </form>
+      </div>
+
+      <div class="panel mt-4">
+        <h5 class="mb-4">Change Password</h5>
+        <form method="post">{% csrf_token %}
+          {% include 'partials/form_fields.html' with form=password_form %}
+          <button type="submit" name="change_password" class="btn btn-accent btn-lg">Update Password</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
