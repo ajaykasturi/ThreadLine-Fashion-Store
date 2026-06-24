@@ -114,3 +114,32 @@ class OrderItem(models.Model):
     def __str__(self):
         return f'{self.quantity} x {self.product}'
 
+
+class Review(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating = models.PositiveSmallIntegerField(default=5)  # 1..5
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.rating}★ by {self.user.username} on {self.product}'
+
+
+class ContactMessage(models.Model):
+    name = models.CharField(max_length=150)
+    email = models.EmailField()
+    subject = models.CharField(max_length=200, blank=True)
+    message = models.TextField()
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)  # null if sent while logged out
+
+    class Meta:
+        ordering = ['-submitted_at']
+
+    def __str__(self):
+        return f'{self.name} ({self.email}) on {self.submitted_at:%Y-%m-%d}'
