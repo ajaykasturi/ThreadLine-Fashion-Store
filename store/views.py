@@ -53,6 +53,20 @@ class ProductListView(ListView):
         return ctx
 
 
+@login_required
+def add_review(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.product = product
+            review.user = request.user
+            review.save()
+            messages.success(request, 'Review posted!')
+    return redirect('product_detail', pk=pk)
+
+
 # ---------------------------------------------------------------
 # CART
 # Lives entirely in request.session so guests can use it too; checkout
