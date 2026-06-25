@@ -111,3 +111,67 @@ class ProductForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         _bootstrap(self.fields)
+
+
+class CheckoutForm(forms.ModelForm):
+    """Collects shipping details at checkout, creates an Order."""
+    class Meta:
+        model = Order
+        fields = ['full_name', 'phone', 'street_address', 'city',
+                  'province', 'postal_code', 'country']
+        labels = {
+            'full_name': 'Full name',
+            'street_address': 'Street address',
+            'postal_code': 'Postal code',
+        }
+        widgets = {
+            'street_address': forms.TextInput(attrs={'placeholder': '123 Ouellette Ave'}),
+            'city': forms.TextInput(attrs={'placeholder': 'Windsor'}),
+            'postal_code': forms.TextInput(attrs={'placeholder': 'N9A 1A1'}),
+            'phone': forms.TextInput(attrs={'placeholder': '519 555 0100'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        _bootstrap(self.fields)
+
+    def clean_postal_code(self):
+        return _clean_postal(self.cleaned_data.get('postal_code', ''), required=True)
+
+
+class ReviewForm(forms.ModelForm):
+    """Registered users leave a rating + comment."""
+    class Meta:
+        model = Review
+        fields = ['rating', 'comment']
+        widgets = {
+            'rating': forms.Select(choices=[(i, f'{i} ★') for i in range(1, 6)]),
+            'comment': forms.Textarea(attrs={'rows': 2}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        _bootstrap(self.fields)
+
+
+class ContactForm(forms.ModelForm):
+    """Contact Us form. Saves the message to the database."""
+    class Meta:
+        model = ContactMessage
+        fields = ['name', 'email', 'subject', 'message']
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder': 'Your name'}),
+            'email': forms.EmailInput(attrs={'placeholder': 'you@email.com'}),
+            'subject': forms.TextInput(attrs={'placeholder': 'What is this about?'}),
+            'message': forms.Textarea(attrs={'rows': 5, 'placeholder': 'How can we help?'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        _bootstrap(self.fields)
+
+    def clean_message(self):
+        msg = self.cleaned_data.get('message', '').strip()
+        if len(msg) < 10:
+            raise forms.ValidationError('Please write at least 10 characters.')
+        return msg
