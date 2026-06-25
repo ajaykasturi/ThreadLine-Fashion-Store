@@ -2,6 +2,16 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
 
+
+PROVINCE_CHOICES = [
+    ('AB', 'Alberta'), ('BC', 'British Columbia'), ('MB', 'Manitoba'),
+    ('NB', 'New Brunswick'), ('NL', 'Newfoundland and Labrador'),
+    ('NS', 'Nova Scotia'), ('NT', 'Northwest Territories'), ('NU', 'Nunavut'),
+    ('ON', 'Ontario'), ('PE', 'Prince Edward Island'), ('QC', 'Quebec'),
+    ('SK', 'Saskatchewan'), ('YT', 'Yukon'),
+]
+
+
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=100, unique=True)
@@ -12,6 +22,7 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Product(models.Model):
     BRAND_CHOICES = [
@@ -41,6 +52,7 @@ class Product(models.Model):
 
     def size_list(self):
         return [s.strip() for s in self.sizes.split(',') if s.strip()]
+
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
