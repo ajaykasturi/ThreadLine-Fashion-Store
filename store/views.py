@@ -238,3 +238,22 @@ def order_history(request):
 
 def about(request):
     return render(request, 'store/about.html')
+
+def contact(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            msg = form.save(commit=False)
+            if request.user.is_authenticated:
+                msg.user = request.user      # remember who sent it
+            msg.save()
+            messages.success(
+                request, 'Thanks for reaching out. We have received your message.')
+            return redirect('contact')       # redirect so refresh does not resubmit
+    else:
+        initial = {}
+        if request.user.is_authenticated:
+            initial = {'name': request.user.get_full_name() or request.user.username,
+                       'email': request.user.email}
+        form = ContactForm(initial=initial)
+    return render(request, 'store/contact.html', {'form': form})
