@@ -7,6 +7,7 @@ urlpatterns = [
     path('', views.ProductListView.as_view(), name='index'),
     path('product/<int:pk>/', views.product_detail, name='product_detail'),
     path('product/<int:pk>/review/', views.add_review, name='add_review'),
+
     # cart + checkout (sessions)
     path('cart/', views.cart_view, name='cart'),
     path('cart/add/<int:pk>/', views.add_to_cart, name='add_to_cart'),
@@ -14,6 +15,9 @@ urlpatterns = [
     path('checkout/', views.checkout, name='checkout'),
     path('orders/', views.order_history, name='order_history'),
 
+    # auth + profile
+    path('register/', views.register, name='register'),
+    path('profile/', views.profile, name='profile'),
 
     # product CRUD
     path('product/new/', views.product_upload, name='product_upload'),
@@ -22,5 +26,6 @@ urlpatterns = [
 
     # static pages
     path('about/', views.about, name='about'),
+     path('contact/', views.contact, name='contact'),
 
 ]
